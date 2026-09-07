@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Medicamentos em Ginecologia — V7</title>
+<style>
+:root{--blue:#0b5f9e;--blue2:#eaf4fb;--ink:#193044;--muted:#687786;--line:#d8e2ea;--bg:#f5f8fb;--red:#a62424;--green:#176b43;--amber:#8a5b00}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--ink)}
+.wrap{max-width:1120px;margin:auto;padding:18px}.hero{background:linear-gradient(135deg,#075b97,#2478b5);color:white;border-radius:20px;padding:24px}
+h1{margin:0 0 8px}.hero p{margin:5px 0;line-height:1.45}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+button,.tab{border:0;border-radius:999px;padding:11px 16px;font-weight:700;cursor:pointer}.tab{background:white;border:1px solid var(--line);color:#164b72}.tab.active,.primary{background:var(--blue);color:white}
+.secondary{background:white;color:var(--blue);border:1px solid #a8c6da}.dangerBtn{background:#fff1f1;color:var(--red);border:1px solid #e7b7b7}
+.panel{display:none}.panel.active{display:block}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+label{display:block;font-weight:700;margin-bottom:6px}input,select,textarea{width:100%;padding:11px 12px;border:1px solid #bfcbd5;border-radius:11px;font-size:16px;background:white}
+textarea{min-height:82px}.row{display:flex;gap:9px;align-items:end}.row>div:first-child{flex:1}.results{display:grid;gap:12px;margin-top:14px}
+.med{border:1px solid var(--line);border-radius:15px;padding:16px;background:#fff}.med h3{color:var(--blue);margin:0 0 5px}.tag{display:inline-block;background:var(--blue2);padding:5px 8px;border-radius:999px;font-size:12px;margin:2px 4px 2px 0}
+.small{font-size:13px;color:var(--muted)}.count{margin-top:9px;color:var(--muted)}.alert{padding:11px 12px;border-radius:11px;background:#fff7df;border-left:4px solid #e0a200;margin:8px 0}.red{background:#fff0f0;border-left-color:#c43a3a}.green{background:#edf9f2;border-left-color:#268354}
+.output h2{color:var(--blue);margin:0 0 10px}.output h3{margin-bottom:5px}.output ul{margin-top:5px;line-height:1.5}.clinicalFields{margin-top:14px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+details summary{cursor:pointer;font-weight:700;color:var(--blue)}a{color:var(--blue)}.hidden{display:none}
+@media(max-width:760px){.grid,.grid3{grid-template-columns:1fr}.row{display:block}.row button{margin-top:8px;width:100%}.hero{padding:19px}}
+@media print{.hero,.tabs,#consulta .card:first-child,#patologia .card:first-child,#assistente .card:first-child,.sources,.actions{display:none!important}.panel{display:none!important}#assistente.active{display:block!important}.wrap{max-width:none;padding:0}.card{border:0}}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b5f9e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gineco Med">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+</head>
+<body>
+
+<div id="pwaInstallBar" style="display:none;position:sticky;top:0;z-index:9999;background:#eef6fb;border-bottom:1px solid #c9dce8;padding:8px 12px;text-align:center">
+  <button id="pwaInstallBtn" style="background:#0b5f9e;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer">
+    Instalar app
+  </button>
+  <span style="margin-left:8px;font-size:13px;color:#38546a">Medicamentos em Ginecologia</span>
+</div>
+<div class="wrap">
+<div class="hero">
+<h1>Medicamentos em Ginecologia — V7</h1>
+<p><b>Ferramenta profissional para o ginecologista em consultório.</b></p>
+<p>Consulta rápida por marca, princípio ativo, classe, patologia ou sintoma. O <b>Assistente Clínico</b> organiza o raciocínio, investigação e opções terapêuticas para apoiar — não substituir — a decisão médica.</p>
+</div>
+
+<div class="tabs">
+<button class="tab active" data-tab="consulta">Consulta rápida</button>
+<button class="tab" data-tab="patologia">Buscar por patologia</button>
+<button class="tab" data-tab="assistente">Assistente Clínico</button>
+</div>
+
+<section id="consulta" class="panel active">
+<div class="card">
+<div class="grid">
+<div><label>Pesquisa livre</label><input id="search" placeholder="Ex.: ampicilina, Benzetacil, candidíase, DIU, fogachos"></div>
+<div><label>Módulo</label><select id="moduleFilter"><option value="">Todos</option><option>Anticoncepção</option><option>Climatério / TH</option><option>Infecções ginecológicas</option><option>SUA / SOMP</option></select></div>
+</div>
+<div class="actions"><button class="primary" id="btnSearch">Pesquisar</button><button class="secondary" id="btnClear">✕ Nova pesquisa</button></div>
+<div class="small" style="margin-top:9px">Pesquisar por medicamento • marca • princípio ativo • classe • patologia • sintoma.</div>
+<div class="count" id="count"></div><div id="results" class="results"></div>
+</div></section>
+
+<section id="patologia" class="panel"><div class="card">
+<label>Condição</label><select id="pathSelect"></select>
+<div id="pathNote" style="margin-top:10px"></div><div id="pathResults" class="results"></div>
+</div></section>
+
+<section id="assistente" class="panel">
+<div class="card">
+<h2 style="margin-top:0;color:var(--blue)">Assistente Clínico</h2>
+<p class="small">Selecione o motivo principal. Os campos mudam conforme o cenário.</p>
+<div class="grid">
+<div><label>Módulo clínico</label><select id="clinicalModule">
+<option value="sua">Sangramento uterino anormal (SUA)</option>
+<option value="th">Climatério / Terapia Hormonal</option>
+<option value="contracepcao">Anticoncepção</option>
+<option value="vulvo">Corrimento / Vulvovaginite / IST</option>
+<option value="endo">Dor pélvica / Endometriose</option>
+</select></div>
+<div><label>Idade</label><input id="age" type="number" min="10" max="100" placeholder="anos"></div>
+</div>
+<div id="clinicalFields" class="clinicalFields"></div>
+<div class="actions"><button class="primary" id="runClinical">Analisar cenário</button><button class="secondary" id="clearClinical">Limpar</button><button class="secondary" onclick="window.print()">Imprimir</button></div>
+</div>
+<div id="clinicalOutput"></div>
+</section>
+
+<div class="card sources"><details><summary>Fontes e links úteis</summary><div class="small" style="line-height:1.8;margin-top:10px">
+<a target="_blank" href="https://www.gov.br/saude/pt-br/assuntos/pcdt/a/atencao-integral-as-pessoas-com-infeccoes-sexualmente-transmissiveis/view">Ministério da Saúde — PCDT IST</a><br>
+<a target="_blank" href="https://www.gov.br/saude/pt-br/centrais-de-conteudo/publicacoes/guias-e-manuais/2026/2026">Ministério da Saúde — Manual de Transição Menopausal e Menopausa 2026</a><br>
+<a target="_blank" href="https://www.febrasgo.org.br/images/pec/Protocolos-assistenciais/Protocolos-assistenciais-ginecologia.pdf/Sangramento-uterino-anormal.pdf">FEBRASGO — Sangramento uterino anormal</a><br>
+<a target="_blank" href="https://www.febrasgo.org.br/institucional/comissoes-nacionais-especializadas/ginecologia/endometriose/">FEBRASGO — Endometriose</a>
+</div></details></div>
+<div class="small">V7 — fichas para prescrição: indicação, apresentação, esquema prático, orientação e referência clínica. Marcas são exemplos de referência/uso corrente. Confirmar bula, interações, elegibilidade individual e protocolos locais antes da prescrição.</div>
+</div>
+
+<script>
+const MEDS = [{"id": "mirena", "brand": "Mirena®", "generic": "Levonorgestrel 52 mg", "cls": "SIU-LNG", "module": "Anticoncepção", "indications": ["Contracepção de longa duração", "Sangramento uterino aumentado", "Proteção endometrial em situações selecionadas de TH"], "dose": "Sistema intrauterino com 52 mg de levonorgestrel; inserção única. A duração depende da indicação e da bula/protocolo vigente.", "cautions": "Excluir gestação; avaliar cavidade uterina, infecção pélvica ativa, sangramento sem diagnóstico e contraindicações específicas à inserção.", "alternatives": ["DIU de cobre TCu 380A", "Implante de etonogestrel", "ACO", "Progestagênios"], "keywords": ["siu", "diu hormonal", "sangramento", "sua", "menorragia", "th", "levonorgestrel"], "sus": "Disponibilidade no SUS varia por protocolo/serviço."}, {"id": "diucobre", "brand": "DIU TCu 380A", "generic": "Dispositivo intrauterino com cobre", "cls": "DIU não hormonal", "module": "Anticoncepção", "indications": ["Contracepção de longa duração", "Contracepção de emergência até 5 dias após relação desprotegida"], "dose": "Inserção intrauterina única; duração contraceptiva de até 10 anos conforme produto/protocolo.", "cautions": "Pode aumentar fluxo e cólicas. Contraindicações incluem gestação, infecção pélvica ativa, sangramento sem diagnóstico e distorção cavitária relevante.", "alternatives": ["SIU-LNG 52 mg", "Implante de etonogestrel", "ACO"], "keywords": ["diu", "cobre", "tcU", "emergência", "larc"], "sus": "Disponível no SUS."}, {"id": "implanon", "brand": "Implanon NXT®", "generic": "Etonogestrel 68 mg", "cls": "Implante subdérmico", "module": "Anticoncepção", "indications": ["Contracepção de longa duração", "Opção quando estrogênio é contraindicado ou indesejado"], "dose": "Implante subdérmico de 68 mg; inserção única; duração usual de 3 anos conforme bula/protocolo.", "cautions": "Sangramento irregular é frequente. Revisar interações com indutores enzimáticos.", "alternatives": ["SIU-LNG", "DIU de cobre", "Pílula só de progestagênio"], "keywords": ["implante", "etonogestrel", "larc", "sem estrogênio"], "sus": "Incorporação ao SUS ampliada; oferta depende da implementação local."}, {"id": "iumi", "brand": "Iumi®", "generic": "Drospirenona 3 mg + etinilestradiol 0,02 mg", "cls": "ACO combinado", "module": "Anticoncepção", "indications": ["Contracepção", "Controle de ciclo", "Acne/hiperandrogenismo em pacientes elegíveis"], "dose": "Uso diário conforme regime da apresentação (tipicamente 24 comprimidos ativos + 4 de pausa/placebo, conforme bula).", "cautions": "Evitar quando contraceptivo combinado é categoria de risco elevada: enxaqueca com aura, TEV/trombofilia, tabagismo ≥35 anos, HAS grave, doença cardiovascular, entre outras.", "alternatives": ["Outros ACO de baixa dose", "Pílula só de progestagênio", "LARC"], "keywords": ["drospirenona", "etinilestradiol", "aco", "acne", "somp"], "sus": "Não padronizado universalmente no SUS."}, {"id": "yasmin", "brand": "Yasmin®", "generic": "Drospirenona 3 mg + etinilestradiol 0,03 mg", "cls": "ACO combinado", "module": "Anticoncepção", "indications": ["Contracepção", "Controle de ciclo", "Acne/hiperandrogenismo em pacientes elegíveis"], "dose": "1 comprimido ao dia conforme regime da apresentação.", "cautions": "Mesmas cautelas dos contraceptivos combinados; avaliar risco trombótico e cardiovascular.", "alternatives": ["ACO com 20 µg EE", "Progestagênio isolado", "LARC"], "keywords": ["drospirenona", "aco", "acne", "somp"], "sus": "Não padronizado universalmente no SUS."}, {"id": "cerazette", "brand": "Cerazette®", "generic": "Desogestrel 75 µg", "cls": "Pílula só de progestagênio", "module": "Anticoncepção", "indications": ["Contracepção", "Lactação", "Quando estrogênio é contraindicado ou indesejado"], "dose": "75 µg por via oral, 1 vez ao dia, uso contínuo, conforme bula.", "cautions": "Sangramento irregular pode ocorrer; revisar interações medicamentosas.", "alternatives": ["Implante de etonogestrel", "SIU-LNG", "DIU de cobre"], "keywords": ["desogestrel", "mini pílula", "lactação"], "sus": "Disponibilidade varia."}, {"id": "depo", "brand": "Depo-Provera®", "generic": "Acetato de medroxiprogesterona 150 mg/mL", "cls": "Progestagênio injetável", "module": "Anticoncepção", "indications": ["Contracepção trimestral", "Opção sem estrogênio"], "dose": "150 mg IM a cada 12–13 semanas, conforme protocolo/bula.", "cautions": "Pode causar sangramento irregular/amenorreia, ganho de peso e atraso no retorno da fertilidade; considerar saúde óssea conforme contexto.", "alternatives": ["Implante", "SIU-LNG", "Pílula só de progestagênio"], "keywords": ["medroxiprogesterona", "injetável", "trimestral"], "sus": "Disponível em muitos serviços SUS; confirmar localmente."}, {"id": "utrogestan", "brand": "Utrogestan®", "generic": "Progesterona micronizada", "cls": "Progestagênio", "module": "Climatério / TH", "indications": ["Proteção endometrial em TH com estrogênio sistêmico", "Esquemas sequenciais ou contínuos"], "dose": "TH: esquemas usuais incluem 100 mg à noite continuamente ou 200 mg/dia por 12–14 dias/mês, conforme regime e individualização.", "cautions": "Pode causar sonolência/tontura; individualizar via, regime e contraindicações.", "alternatives": ["Acetato de medroxiprogesterona", "SIU-LNG 52 mg em situações apropriadas"], "keywords": ["progesterona", "th", "menopausa", "endométrio"], "sus": "Disponibilidade no SUS varia."}, {"id": "provera", "brand": "Provera®", "generic": "Acetato de medroxiprogesterona", "cls": "Progestagênio", "module": "Climatério / TH", "indications": ["Proteção endometrial em TH", "Sangramento uterino em situações selecionadas"], "dose": "TH: esquemas usuais incluem 2,5–5 mg/dia continuamente ou 5–10 mg/dia por 12–14 dias/mês.", "cautions": "Individualizar conforme padrão de sangramento e fatores de risco.", "alternatives": ["Progesterona micronizada", "SIU-LNG 52 mg"], "keywords": ["medroxiprogesterona", "mpa", "th", "sua"], "sus": "Pode existir em apresentações padronizadas; confirmar disponibilidade local."}, {"id": "ovestrion", "brand": "Ovestrion®", "generic": "Estriol vaginal", "cls": "Estrogênio vaginal", "module": "Climatério / TH", "indications": ["Síndrome geniturinária da menopausa", "Secura vaginal", "Dispareunia por atrofia"], "dose": "Regime depende da apresentação. Estratégia frequente: uso diário inicial por cerca de 2 semanas seguido de manutenção 2x/semana, conforme bula e resposta.", "cautions": "Sangramento vaginal inesperado requer avaliação. Em câncer de mama, individualizar e compartilhar decisão com oncologia quando pertinente.", "alternatives": ["Promestrieno vaginal", "Estradiol vaginal de baixa dose", "Hidratantes/lubrificantes"], "keywords": ["estriol", "vaginal", "sgum", "atrofia", "menopausa"], "sus": "Disponibilidade varia."}, {"id": "colpotrofine", "brand": "Colpotrofine®", "generic": "Promestrieno", "cls": "Estrogênio local", "module": "Climatério / TH", "indications": ["Síndrome geniturinária da menopausa", "Atrofia vulvovaginal"], "dose": "Uso vaginal conforme apresentação e bula; frequentemente fase inicial diária seguida de manutenção.", "cautions": "Avaliar contraindicações e sangramento inexplicado.", "alternatives": ["Estriol vaginal", "Estradiol vaginal de baixa dose"], "keywords": ["promestrieno", "vaginal", "sgum", "atrofia"], "sus": "Disponibilidade varia."}, {"id": "livial", "brand": "Livial®", "generic": "Tibolona 2,5 mg", "cls": "Terapia hormonal sistêmica", "module": "Climatério / TH", "indications": ["Sintomas vasomotores em pós-menopausa", "Sintomas climatéricos em pacientes selecionadas"], "dose": "2,5 mg por via oral, 1 vez ao dia, uso contínuo.", "cautions": "Não é contraceptivo. Usar em pós-menopausa estabelecida; avaliar contraindicações de TH e risco individual.", "alternatives": ["Estradiol transdérmico + progestagênio", "Estrogênio oral + progestagênio"], "keywords": ["tibolona", "menopausa", "fogachos", "libido"], "sus": "Não universalmente disponível no SUS."}, {"id": "estradiolpatch", "brand": "Estradot® / adesivos de estradiol", "generic": "17β-estradiol transdérmico", "cls": "Estrogênio sistêmico transdérmico", "module": "Climatério / TH", "indications": ["Sintomas vasomotores", "TH sistêmica em pacientes selecionadas"], "dose": "Dose individualizada; apresentações transdérmicas variam. Usar menor dose eficaz e reavaliar periodicamente.", "cautions": "Se útero presente, associar proteção endometrial adequada. Avaliar contraindicações de TH.", "alternatives": ["Estradiol gel", "Estrogênio oral", "Tibolona em situações selecionadas"], "keywords": ["estradiol", "adesivo", "transdérmico", "th", "fogachos"], "sus": "Disponibilidade varia."}, {"id": "flagyl", "brand": "Flagyl®", "generic": "Metronidazol", "cls": "Nitroimidazólico", "module": "Infecções ginecológicas", "indications": ["Vaginose bacteriana", "Tricomoníase", "Componente anaeróbio em esquemas para DIP"], "dose": "Vaginose: 500 mg VO 2x/dia por 7 dias é esquema amplamente usado; no PCDT brasileiro também há apresentações equivalentes conforme disponibilidade. Tricomoníase: esquemas incluem 2 g VO dose única ou 500 mg VO 2x/dia por 7 dias, conforme situação/protocolo.", "cautions": "Revisar uso de álcool, interações e intolerância GI. Em tricomoníase tratar parceria(s) sexual(is) conforme protocolo.", "alternatives": ["Clindamicina para vaginose em situações selecionadas"], "keywords": ["metronidazol", "vaginose", "tricomoníase", "corrimento", "dip"], "sus": "Amplamente disponível no SUS."}, {"id": "metrogel", "brand": "Metronidazol vaginal", "generic": "Metronidazol gel/creme vaginal", "cls": "Antimicrobiano vaginal", "module": "Infecções ginecológicas", "indications": ["Vaginose bacteriana"], "dose": "Regime depende da concentração. PCDT brasileiro cita creme vaginal 100 mg/g: 1 aplicador cheio à noite por 5 dias.", "cautions": "Não é tratamento adequado isolado para tricomoníase.", "alternatives": ["Metronidazol VO", "Clindamicina"], "keywords": ["vaginal", "vaginose", "metronidazol creme"], "sus": "Disponibilidade varia."}, {"id": "clinda", "brand": "Dalacin C® / genéricos", "generic": "Clindamicina", "cls": "Lincosamida", "module": "Infecções ginecológicas", "indications": ["Vaginose bacteriana como alternativa", "Componente de alguns esquemas para infecções pélvicas"], "dose": "Vaginose: 300 mg VO 2x/dia por 7 dias é alternativa no PCDT brasileiro.", "cautions": "Risco de diarreia e colite por C. difficile; revisar alergias e interações.", "alternatives": ["Metronidazol"], "keywords": ["clindamicina", "vaginose", "corrimento"], "sus": "Disponibilidade depende da apresentação."}, {"id": "fluconazol", "brand": "Zoltec® / genéricos", "generic": "Fluconazol 150 mg", "cls": "Azólico sistêmico", "module": "Infecções ginecológicas", "indications": ["Candidíase vulvovaginal não complicada em não gestantes", "Candidíase recorrente em esquemas selecionados"], "dose": "Não complicada: 150 mg VO dose única. Recorrente: esquemas de indução/manutenção devem seguir protocolo e confirmação diagnóstica.", "cautions": "Evitar fluconazol oral na gestação para candidíase vulvovaginal; revisar hepatopatia e interações.", "alternatives": ["Miconazol vaginal", "Clotrimazol vaginal"], "keywords": ["candidiase", "fungo", "corrimento", "prurido", "fluconazol"], "sus": "Genérico amplamente disponível em muitos locais; confirmar localmente."}, {"id": "miconazol", "brand": "Gino-Daktarin® / genéricos", "generic": "Miconazol vaginal", "cls": "Azólico vaginal", "module": "Infecções ginecológicas", "indications": ["Candidíase vulvovaginal"], "dose": "Esquema depende da apresentação (creme/óvulo) e concentração; seguir bula/protocolo.", "cautions": "Em gestantes, tratamento tópico vaginal é preferido para candidíase.", "alternatives": ["Clotrimazol vaginal", "Fluconazol VO em não gestantes selecionadas"], "keywords": ["miconazol", "candidiase", "vaginal", "fungo"], "sus": "Disponibilidade varia."}, {"id": "clotrimazol", "brand": "Canesten® / genéricos", "generic": "Clotrimazol vaginal", "cls": "Azólico vaginal", "module": "Infecções ginecológicas", "indications": ["Candidíase vulvovaginal"], "dose": "Regime conforme apresentação (óvulo/comprimido vaginal/creme); seguir bula.", "cautions": "Preferir tratamento tópico na gestação para candidíase.", "alternatives": ["Miconazol vaginal", "Nistatina vaginal"], "keywords": ["clotrimazol", "candidiase", "vaginal"], "sus": "Disponibilidade varia."}, {"id": "nistatina", "brand": "Micostatin® / genéricos", "generic": "Nistatina vaginal", "cls": "Antifúngico poliênico", "module": "Infecções ginecológicas", "indications": ["Candidíase vulvovaginal em situações selecionadas"], "dose": "Regime depende da apresentação; seguir bula/protocolo.", "cautions": "Menor espectro sistêmico por uso local; eficácia pode variar conforme espécie e contexto.", "alternatives": ["Azólicos vaginais"], "keywords": ["nistatina", "candidiase", "vaginal"], "sus": "Disponibilidade frequente em redes públicas, conforme município."}, {"id": "ceftriaxona", "brand": "Rocefin® / genéricos", "generic": "Ceftriaxona", "cls": "Cefalosporina 3ª geração", "module": "Infecções ginecológicas", "indications": ["Gonorreia", "Componente de esquemas de DIP"], "dose": "Dose depende da indicação e do protocolo vigente; em DIP, faz parte de esquema combinado com cobertura para clamídia e anaeróbios.", "cautions": "Revisar alergia grave a beta-lactâmicos e necessidade de tratamento de parcerias conforme IST.", "alternatives": ["Conforme protocolo de IST e alergias"], "keywords": ["gonorreia", "dip", "ceftriaxona", "ist"], "sus": "Disponível no SUS."}, {"id": "doxiciclina", "brand": "Vibramicina® / genéricos", "generic": "Doxiciclina 100 mg", "cls": "Tetraciclina", "module": "Infecções ginecológicas", "indications": ["Clamídia", "Componente de tratamento ambulatorial de DIP"], "dose": "Clamídia: 100 mg VO 2x/dia por 7 dias; DIP: usualmente 100 mg VO 2x/dia por 14 dias em combinação, conforme protocolo.", "cautions": "Evitar na gestação; pode causar esofagite e fotossensibilidade.", "alternatives": ["Azitromicina em situações selecionadas"], "keywords": ["clamidia", "dip", "doxiciclina", "ist"], "sus": "Disponibilidade varia por rede."}, {"id": "azitro", "brand": "Zitromax® / genéricos", "generic": "Azitromicina", "cls": "Macrolídeo", "module": "Infecções ginecológicas", "indications": ["Clamídia em situações específicas", "Alternativa em alguns cenários de IST"], "dose": "Posologia depende da indicação e protocolo vigente; para clamídia pode ser usada dose única de 1 g em situações selecionadas.", "cautions": "Revisar QT prolongado e interações.", "alternatives": ["Doxiciclina em não gestantes quando indicada"], "keywords": ["azitromicina", "clamidia", "ist", "gestação"], "sus": "Amplamente disponível no SUS."}, {"id": "tranex", "brand": "Transamin® / genéricos", "generic": "Ácido tranexâmico", "cls": "Antifibrinolítico", "module": "SUA / SOMP", "indications": ["Sangramento uterino aumentado durante o fluxo menstrual"], "dose": "Regimes variam por apresentação/protocolo; uso apenas durante os dias de sangramento. Ajustar em insuficiência renal.", "cautions": "Avaliar história de trombose e risco tromboembólico individual.", "alternatives": ["AINEs", "SIU-LNG 52 mg", "ACO", "Progestagênios"], "keywords": ["sua", "sangramento", "menorragia", "tranexamico"], "sus": "Pode estar disponível conforme padronização local."}, {"id": "mefenamico", "brand": "Ponstan® / genéricos", "generic": "Ácido mefenâmico", "cls": "AINE", "module": "SUA / SOMP", "indications": ["Dismenorreia", "Redução do sangramento menstrual em algumas pacientes"], "dose": "Uso de curta duração durante menstruação, conforme bula e tolerância.", "cautions": "Evitar/usar com cautela em doença renal, úlcera, risco hemorrágico e outras contraindicações a AINE.", "alternatives": ["Ibuprofeno", "Naproxeno", "Ácido tranexâmico"], "keywords": ["dismenorreia", "sua", "aine", "dor"], "sus": "Disponibilidade varia."}, {"id": "metformina", "brand": "Glifage® / genéricos", "generic": "Metformina", "cls": "Biguanida", "module": "SUA / SOMP", "indications": ["SOMP/PMOS com foco metabólico", "Prediabetes/DM2 conforme indicação"], "dose": "Iniciar baixo, por exemplo 500 mg/dia, e titular gradualmente; doses usuais 1.500–2.000 mg/dia conforme tolerância e indicação.", "cautions": "Ajustar/evitar conforme função renal; efeitos GI; considerar vitamina B12 em uso prolongado.", "alternatives": ["Mudança de estilo de vida", "ACO para ciclo/hiperandrogenismo quando elegível"], "keywords": ["somp", "pmos", "sop", "metabolica", "metformina"], "sus": "Amplamente disponível no SUS."}, {"id": "espironolactona", "brand": "Aldactone® / genéricos", "generic": "Espironolactona", "cls": "Antiandrogênico / diurético poupador de potássio", "module": "SUA / SOMP", "indications": ["Hirsutismo em SOMP/PMOS quando resposta insuficiente e contracepção eficaz"], "dose": "Doses usuais para hiperandrogenismo variam, frequentemente 50–100 mg/dia, podendo ser ajustadas conforme resposta e tolerância.", "cautions": "Evitar gestação; monitorar potássio/função renal em pacientes de risco. Usar com contracepção eficaz.", "alternatives": ["ACO", "Métodos cosméticos/laser"], "keywords": ["hirsutismo", "somp", "espironolactona", "acne"], "sus": "Disponibilidade varia."}, {"id": "letrozol", "brand": "Femara® / genéricos", "generic": "Letrozol 2,5 mg", "cls": "Inibidor da aromatase", "module": "SUA / SOMP", "indications": ["Indução de ovulação na infertilidade anovulatória associada à SOMP/PMOS"], "dose": "Esquemas comuns usam 2,5–5 mg/dia por 5 dias no início do ciclo, com ajustes sob acompanhamento reprodutivo.", "cautions": "Uso reprodutivo deve ser supervisionado; excluir gestação antes do ciclo. Pode ser off-label conforme jurisdição.", "alternatives": ["Citrato de clomifeno", "Gonadotrofinas em segunda linha"], "keywords": ["letrozol", "ovulação", "infertilidade", "somp"], "sus": "Oferta depende de protocolo/serviço."}, {"id": "clomifeno", "brand": "Clomid® / Indux®", "generic": "Citrato de clomifeno 50 mg", "cls": "Indutor de ovulação", "module": "SUA / SOMP", "indications": ["Indução de ovulação quando letrozol não é disponível/adequado"], "dose": "Esquemas comuns iniciam com 50 mg/dia por 5 dias, com titulação conforme resposta e protocolo.", "cautions": "Risco de gestação múltipla e hiperestimulação; pode exigir monitorização.", "alternatives": ["Letrozol"], "keywords": ["clomifeno", "clomid", "indux", "ovulação", "infertilidade"], "sus": "Disponibilidade varia."}, {"id": "ampicilina", "brand": "Binotal® / genéricos", "generic": "Ampicilina", "cls": "Aminopenicilina", "module": "Infecções ginecológicas", "indications": ["Infecções bacterianas sensíveis", "ITU em cenários selecionados conforme cultura/sensibilidade"], "dose": "A posologia depende do sítio e protocolo. Em ITU na gestação há esquemas descritos com 500 mg VO 6/6 h por 7 dias; evitar uso empírico quando resistência local for elevada.", "cautions": "Alergia a betalactâmicos; ajustar conforme função renal; cultura/antibiograma quando indicado.", "alternatives": ["Amoxicilina", "Cefalexina", "Nitrofurantoína ou fosfomicina conforme cenário"], "keywords": ["ampicilina", "penicilina", "aminopenicilina", "betalactamico", "itu", "cistite"], "sus": "Disponibilidade depende da apresentação e padronização local."}, {"id": "amoxicilina", "brand": "Amoxil® / genéricos", "generic": "Amoxicilina", "cls": "Aminopenicilina", "module": "Infecções ginecológicas", "indications": ["Infecções bacterianas sensíveis", "ITU quando compatível com cultura/sensibilidade"], "dose": "Dose e duração variam conforme indicação, função renal e protocolo.", "cautions": "Resistência de uropatógenos pode limitar uso empírico; revisar alergia a betalactâmicos.", "alternatives": ["Amoxicilina/clavulanato", "Cefalexina", "Outras conforme antibiograma"], "keywords": ["amoxicilina", "penicilina", "aminopenicilina", "betalactamico", "itu"], "sus": "Há apresentações no SUS; confirmar disponibilidade local."}, {"id": "amoxiclav", "brand": "Clavulin® / genéricos", "generic": "Amoxicilina + clavulanato", "cls": "Aminopenicilina + inibidor de betalactamase", "module": "Infecções ginecológicas", "indications": ["Infecções bacterianas sensíveis em cenários selecionados"], "dose": "Esquema depende da apresentação, sítio infeccioso, função renal e protocolo.", "cautions": "Alergia a betalactâmicos; função renal/hepática; evitar espectro ampliado sem indicação.", "alternatives": ["Amoxicilina", "Cefalosporina conforme indicação"], "keywords": ["amoxicilina clavulanato", "clavulin", "penicilina", "betalactamico"], "sus": "Disponibilidade varia por apresentação."}, {"id": "cefalexina", "brand": "Keflex® / genéricos", "generic": "Cefalexina", "cls": "Cefalosporina de 1ª geração", "module": "Infecções ginecológicas", "indications": ["Cistite/ITU em pacientes selecionadas", "Infecções bacterianas sensíveis"], "dose": "Posologia depende da indicação e função renal; seguir protocolo/cultura quando indicado.", "cautions": "Revisar alergia grave a betalactâmicos e função renal.", "alternatives": ["Nitrofurantoína", "Fosfomicina", "Outras conforme cultura"], "keywords": ["cefalexina", "keflex", "cefalosporina", "itu", "cistite"], "sus": "Disponibilidade frequente no SUS; confirmar apresentação local."}, {"id": "fosfomicina", "brand": "Monuril® / genéricos", "generic": "Fosfomicina trometamol 3 g", "cls": "Antibacteriano urinário", "module": "Infecções ginecológicas", "indications": ["Cistite não complicada em pacientes selecionadas"], "dose": "3 g VO em dose única é esquema usual para cistite não complicada, conforme protocolo e perfil microbiológico.", "cautions": "Não usar como monoterapia para pielonefrite; recorrência/complicação pode exigir cultura.", "alternatives": ["Nitrofurantoína", "Cefalexina conforme cenário"], "keywords": ["fosfomicina", "monuril", "itu", "cistite"], "sus": "Disponibilidade varia."}, {"id": "nitrofurantoina", "brand": "Macrodantina® / genéricos", "generic": "Nitrofurantoína", "cls": "Antibacteriano urinário", "module": "Infecções ginecológicas", "indications": ["Cistite não complicada em pacientes selecionadas"], "dose": "Esquema depende da formulação e protocolo; considerar função renal.", "cautions": "Não usar para pielonefrite; considerar função renal e particularidades da gestação.", "alternatives": ["Fosfomicina", "Cefalexina conforme cenário"], "keywords": ["nitrofurantoina", "macrodantina", "itu", "cistite"], "sus": "Disponibilidade frequente no SUS; confirmar apresentação local."}, {"id": "benzatina", "brand": "Benzetacil® / genéricos", "generic": "Benzilpenicilina benzatina", "cls": "Penicilina", "module": "Infecções ginecológicas", "indications": ["Sífilis conforme estágio clínico"], "dose": "Dose e número de aplicações dependem do estágio; seguir PCDT IST vigente.", "cautions": "Na gestação, penicilina é o tratamento efetivo para prevenção da transmissão vertical; alergia exige manejo específico.", "alternatives": ["Alternativas dependem do estágio e da gestação"], "keywords": ["benzatina", "benzetacil", "benzilpenicilina", "ist", "penicilina", "penicilina benzatina", "sifilis"], "sus": "Disponível no SUS."}, {"id": "aciclovir", "brand": "Zovirax® / genéricos", "generic": "Aciclovir", "cls": "Antiviral", "module": "Infecções ginecológicas", "indications": ["Herpes genital — primeiro episódio, recorrência ou supressão"], "dose": "Posologia varia conforme primeiro episódio, recorrência ou terapia supressiva; seguir PCDT IST/bula.", "cautions": "Ajustar em insuficiência renal; orientar transmissão e recorrências.", "alternatives": ["Valaciclovir"], "keywords": ["aciclovir", "zovirax", "herpes", "herpes genital", "ist"], "sus": "Disponível no SUS em protocolos/apresentações específicas."}, {"id": "dienogeste", "brand": "Allurene® / genéricos", "generic": "Dienogeste 2 mg", "cls": "Progestagênio", "module": "SUA / SOMP", "indications": ["Dor associada à endometriose"], "dose": "2 mg VO 1 vez ao dia, uso contínuo, conforme bula e estratégia terapêutica.", "cautions": "Pode causar sangramento irregular/amenorreia; não presumir contracepção confiável quando usado isoladamente para endometriose.", "alternatives": ["ACO contínuo", "SIU-LNG", "Outros progestagênios"], "keywords": ["dienogeste", "allurene", "endometriose", "dor pelvica"], "sus": "Disponibilidade varia."}, {"id": "noretisterona", "brand": "Primolut-Nor® / genéricos", "generic": "Acetato de noretisterona", "cls": "Progestagênio", "module": "SUA / SOMP", "indications": ["Sangramento uterino em situações selecionadas", "Endometriose em alguns esquemas"], "dose": "Dose e duração variam conforme indicação; individualizar e seguir bula/protocolo.", "cautions": "Avaliar etiologia do sangramento e contraindicações a progestagênios.", "alternatives": ["Medroxiprogesterona", "SIU-LNG", "ACO"], "keywords": ["noretisterona", "primolut", "sua", "sangramento", "endometriose"], "sus": "Disponibilidade varia."}, {"id": "levonorgestrel_ec", "brand": "Postinor-2® / Pozato Uni® / genéricos", "generic": "Levonorgestrel 1,5 mg", "cls": "Contracepção de emergência", "module": "Anticoncepção", "indications": ["Contracepção de emergência"], "dose": "1,5 mg VO em dose única, o mais cedo possível após a relação desprotegida.", "cautions": "Não substitui método regular e não interrompe gestação estabelecida.", "alternatives": ["DIU de cobre como contracepção de emergência, conforme elegibilidade"], "keywords": ["levonorgestrel emergencia", "pilula do dia seguinte", "emergencia"], "sus": "Opção presente em políticas públicas; confirmar disponibilidade local."}, {"id": "estradiolgel", "brand": "Oestrogel® / Sandrena®", "generic": "17β-estradiol transdérmico em gel", "cls": "Estrogênio sistêmico transdérmico", "module": "Climatério / TH", "indications": ["Sintomas vasomotores", "TH sistêmica em pacientes selecionadas"], "dose": "Dose individualizada conforme apresentação; utilizar a menor dose eficaz e reavaliar periodicamente.", "cautions": "Com útero presente, associar proteção endometrial adequada. Avaliar contraindicações de TH.", "alternatives": ["Adesivo de estradiol", "Estrogênio oral"], "keywords": ["estradiol", "oestrogel", "sandrena", "gel", "transdermico", "th", "fogachos"], "sus": "Disponibilidade varia."}, {"id": "cicloprimogyna", "brand": "Cicloprimogyna®", "generic": "Valerato de estradiol + levonorgestrel", "cls": "TH sequencial", "module": "Climatério / TH", "indications": ["Sintomas climatéricos em pacientes selecionadas que aceitam regime sequencial"], "dose": "Uso cíclico conforme cartela/bula.", "cautions": "Não é contraceptivo. Avaliar contraindicações de TH e padrão de sangramento.", "alternatives": ["Estradiol + progesterona micronizada", "Outros esquemas sequenciais"], "keywords": ["cicloprimogyna", "norgestrel", "estradiol", "perimenopausa", "th"], "sus": "Não padronizado universalmente no SUS."}, {"id": "venlafaxina", "brand": "Efexor XR® / genéricos", "generic": "Venlafaxina", "cls": "SNRI", "module": "Climatério / TH", "indications": ["Sintomas vasomotores quando TH não é desejada/apropriada em pacientes selecionadas"], "dose": "Usar dose baixa inicial e titular conforme resposta, tolerância e indicação.", "cautions": "Revisar pressão arterial, interações e síndrome de descontinuação.", "alternatives": ["Escitalopram", "Gabapentina", "TH quando elegível"], "keywords": ["venlafaxina", "efexor", "fogachos", "nao hormonal", "snri"], "sus": "Disponibilidade varia."}];
+
+
+const CLINICAL_GUIDE = {
+"ampicilina":{
+ title:"Ampicilina", presentation:"VO — apresentações variáveis",
+ uses:[
+  {ind:"ITU baixa/bacteriúria na gestação, quando sensível",reg:"500 mg VO a cada 6 horas por 7 dias.",practice:"Preferir tratamento orientado por urocultura/antibiograma; resistência local pode limitar o uso empírico."}
+ ],
+ attention:"Alergia a betalactâmicos; ajustar à função renal. Em ITU gestacional, realizar urocultura de controle cerca de 1 semana após o tratamento.",
+ ref:"FEBRASGO — Infecções do trato urinário durante a gravidez, Protocolo nº 9, 2024",
+ url:"https://www.febrasgo.org.br/images/pec/CNE_pdfs/fps2024/Protocolos%20cole%C3%A7%C3%A3o%202024-2025/n9%20-%20O%20-%20Infec%C3%A7%C3%B5es%20do%20trato%20urin%C3%A1rio%20durante%20a%20gravidez.pdf"
+},
+"amoxicilina":{
+ title:"Amoxicilina", presentation:"VO — 500 mg / 875 mg",
+ uses:[
+  {ind:"ITU baixa/bacteriúria na gestação, quando sensível",reg:"500 mg VO a cada 8 horas OU 875 mg VO a cada 12 horas por 7 dias.",practice:"Não é boa escolha empírica onde a resistência de E. coli é elevada. É opção particularmente útil quando a cultura identifica S. agalactiae ou E. faecalis sensível."}
+ ],
+ attention:"Colher urocultura conforme cenário e ajustar ao antibiograma. Urocultura de controle aproximadamente 1 semana após o término na gestação.",
+ ref:"FEBRASGO — Infecções do trato urinário durante a gravidez, Protocolo nº 9, 2024",
+ url:"https://www.febrasgo.org.br/images/pec/CNE_pdfs/fps2024/Protocolos%20cole%C3%A7%C3%A3o%202024-2025/n9%20-%20O%20-%20Infec%C3%A7%C3%B5es%20do%20trato%20urin%C3%A1rio%20durante%20a%20gravidez.pdf"
+},
+"amoxiclav":{
+ title:"Amoxicilina + clavulanato", presentation:"VO — 500/125 mg ou 875/125 mg",
+ uses:[
+  {ind:"ITU baixa na gestação em cenário apropriado",reg:"500/125 mg VO a cada 8 horas OU 875/125 mg VO a cada 12 horas por 7 dias.",practice:"Escolher conforme cultura, suscetibilidade e epidemiologia local; evitar ampliar espectro sem necessidade."}
+ ],
+ attention:"Alergia a betalactâmicos; função renal/hepática; revisar cultura/antibiograma.",
+ ref:"FEBRASGO — Infecções do trato urinário durante a gravidez, Protocolo nº 9, 2024",
+ url:"https://www.febrasgo.org.br/images/pec/CNE_pdfs/fps2024/Protocolos%20cole%C3%A7%C3%A3o%202024-2025/n9%20-%20O%20-%20Infec%C3%A7%C3%B5es%20do%20trato%20urin%C3%A1rio%20durante%20a%20gravidez.pdf"
+},
+"cefalexina":{
+ title:"Cefalexina", presentation:"VO — 500 mg",
+ uses:[
+  {ind:"ITU baixa/bacteriúria na gestação",reg:"500 mg VO a cada 6 horas por 7 dias.",practice:"Opção prática quando o perfil microbiológico é compatível; ajustar ao antibiograma quando disponível."}
+ ],
+ attention:"Revisar alergia grave a betalactâmicos e função renal. Na gestação, considerar urocultura de controle após tratamento.",
+ ref:"FEBRASGO — Infecções do trato urinário durante a gravidez, Protocolo nº 9, 2024",
+ url:"https://www.febrasgo.org.br/images/pec/CNE_pdfs/fps2024/Protocolos%20cole%C3%A7%C3%A3o%202024-2025/n9%20-%20O%20-%20Infec%C3%A7%C3%B5es%20do%20trato%20urin%C3%A1rio%20durante%20a%20gravidez.pdf"
+},
+"nitrofurantoina":{
+ title:"Nitrofurantoína", presentation:"VO — 100 mg",
+ uses:[
+  {ind:"ITU baixa na gestação",reg:"100 mg VO a cada 6 horas por 3–7 dias.",practice:"Boa opção para trato urinário baixo; não serve para pielonefrite por baixa concentração tecidual renal."}
+ ],
+ attention:"Considerar função renal; evitar nas últimas semanas da gestação pelo risco de hemólise em concepto/RN com deficiência de G6PD.",
+ ref:"FEBRASGO — Infecções do trato urinário durante a gravidez, Protocolo nº 9, 2024",
+ url:"https://www.febrasgo.org.br/images/pec/CNE_pdfs/fps2024/Protocolos%20cole%C3%A7%C3%A3o%202024-2025/n9%20-%20O%20-%20Infec%C3%A7%C3%B5es%20do%20trato%20urin%C3%A1rio%20durante%20a%20gravidez.pdf"
+},
+"fosfomicina":{
+ title:"Fosfomicina trometamol", presentation:"VO — sachê 3 g",
+ uses:[
+  {ind:"ITU baixa na gestação / cistite em cenário apropriado",reg:"3 g VO em dose única.",practice:"Esquema simples e útil para infecção baixa; não utilizar como tratamento de pielonefrite."}
+ ],
+ attention:"Recorrência, febre, dor lombar ou fatores complicadores exigem outra abordagem. Ajustar à cultura quando indicada.",
+ ref:"FEBRASGO — Infecções do trato urinário durante a gravidez, Protocolo nº 9, 2024",
+ url:"https://www.febrasgo.org.br/images/pec/CNE_pdfs/fps2024/Protocolos%20cole%C3%A7%C3%A3o%202024-2025/n9%20-%20O%20-%20Infec%C3%A7%C3%B5es%20do%20trato%20urin%C3%A1rio%20durante%20a%20gravidez.pdf"
+},
+"benzatina":{
+ title:"Benzilpenicilina benzatina", presentation:"IM — 1,2 milhão UI / 2,4 milhões UI conforme apresentação",
+ uses:[
+  {ind:"Sífilis recente (primária, secundária ou latente recente)",reg:"2,4 milhões UI IM, dose única — 1,2 milhão UI em cada glúteo.",practice:"Na gestação, a penicilina é o tratamento de escolha para tratamento materno e prevenção da transmissão vertical."},
+  {ind:"Sífilis tardia, latente tardia ou duração ignorada",reg:"2,4 milhões UI IM semanalmente por 3 semanas; dose total 7,2 milhões UI.",practice:"Respeitar o intervalo recomendado entre as doses e realizar seguimento sorológico conforme PCDT."}
+ ],
+ attention:"Suspeita de neurossífilis exige outro esquema (penicilina cristalina IV). Gestante com alergia à penicilina requer manejo específico/desensibilização conforme protocolo.",
+ ref:"Ministério da Saúde — PCDT IST",
+ url:"https://www.gov.br/saude/pt-br/assuntos/pcdt/a/atencao-integral-as-pessoas-com-infeccoes-sexualmente-transmissiveis/view"
+}
+,
+"flagyl":{"title":"Metronidazol","presentation":"VO — 250/400/500 mg","uses":[
+{"ind":"Vaginose bacteriana","reg":"500 mg VO 12/12 h por 7 dias.","practice":"Esquema sistêmico clássico; alternativas vaginais podem ser usadas conforme tolerância e disponibilidade."},
+{"ind":"Tricomoníase","reg":"500 mg VO 12/12 h por 7 dias.","practice":"Tratar parceria(s), orientar prevenção até conclusão e considerar rastreio de outras IST."},
+{"ind":"DIP — cobertura anaeróbia","reg":"500 mg VO 12/12 h por 14 dias, associado ao restante do esquema.","practice":"Não utilizar isoladamente para DIP."}],
+"attention":"Revisar tolerância, interações e situações especiais; seguir PCDT vigente.","ref":"Ministério da Saúde — PCDT IST","url":"https://www.gov.br/saude/pt-br/assuntos/pcdt/a/atencao-integral-as-pessoas-com-infeccoes-sexualmente-transmissiveis/view"},
+"clinda":{"title":"Clindamicina","presentation":"VO/vaginal — conforme apresentação","uses":[
+{"ind":"Vaginose bacteriana — alternativa","reg":"Creme vaginal 2%: 5 g intravaginal à noite por 7 dias.","practice":"Alternativa quando metronidazol não é adequado ou tolerado."}],
+"attention":"Diarreia importante exige atenção para colite associada a antibiótico. Conferir particularidades da formulação vaginal.","ref":"FEBRASGO — Vulvovaginites","url":"https://www.febrasgo.org.br/images/arquivos/manuais/Manual_de_Patologia_do_Trato_Genital_Inferior/Manual-PTGI-Cap-06-Vulvovaginites.pdf"},
+"fluconazol":{"title":"Fluconazol","presentation":"VO — 150 mg","uses":[
+{"ind":"Candidíase vulvovaginal não complicada","reg":"150 mg VO, dose única.","practice":"Esquema prático para quadro típico não complicado em não gestante."},
+{"ind":"Candidíase recorrente/complicada","reg":"Não aplicar automaticamente dose única; confirmar diagnóstico e considerar indução/manutenção conforme protocolo.","practice":"Rever espécie, fatores predisponentes e diagnósticos diferenciais."}],
+"attention":"Na gestação, preferir azólico tópico vaginal e evitar fluconazol oral de rotina. Revisar interações/hepatopatia.","ref":"FEBRASGO — Vulvovaginites","url":"https://www.febrasgo.org.br/images/arquivos/manuais/Manual_de_Patologia_do_Trato_Genital_Inferior/Manual-PTGI-Cap-06-Vulvovaginites.pdf"},
+"miconazol":{"title":"Miconazol vaginal","presentation":"Creme/óvulo — concentração variável","uses":[
+{"ind":"Candidíase vulvovaginal","reg":"Curso intravaginal conforme concentração/apresentação; regimes usuais variam de 1 a 7 dias.","practice":"Conferir a concentração do produto; na gestação, preferir curso tópico apropriado."}],
+"attention":"Persistência/recorrência exige reavaliação diagnóstica.","ref":"FEBRASGO — Vulvovaginites","url":"https://www.febrasgo.org.br/images/arquivos/manuais/Manual_de_Patologia_do_Trato_Genital_Inferior/Manual-PTGI-Cap-06-Vulvovaginites.pdf"},
+"clotrimazol":{"title":"Clotrimazol vaginal","presentation":"Comprimido/creme vaginal — concentração variável","uses":[
+{"ind":"Candidíase vulvovaginal","reg":"Esquema intravaginal conforme concentração/apresentação do produto.","practice":"Opção tópica útil, inclusive quando se deseja evitar terapia sistêmica."}],
+"attention":"Na gestação, azólicos tópicos são preferidos; falha/recorrência requer confirmação diagnóstica.","ref":"FEBRASGO — Vulvovaginites","url":"https://www.febrasgo.org.br/images/arquivos/manuais/Manual_de_Patologia_do_Trato_Genital_Inferior/Manual-PTGI-Cap-06-Vulvovaginites.pdf"},
+"nistatina":{"title":"Nistatina vaginal","presentation":"Comprimido/óvulo vaginal — conforme apresentação","uses":[
+{"ind":"Candidíase vulvovaginal — alternativa","reg":"Curso intravaginal conforme apresentação/protocolo, habitualmente por vários dias.","practice":"Alternativa aos azólicos em situações selecionadas."}],
+"attention":"Falha/recorrência frequente exige confirmação etiológica e consideração de Candida não-albicans.","ref":"FEBRASGO — Vulvovaginites","url":"https://www.febrasgo.org.br/images/arquivos/manuais/Manual_de_Patologia_do_Trato_Genital_Inferior/Manual-PTGI-Cap-06-Vulvovaginites.pdf"},
+"ceftriaxona":{"title":"Ceftriaxona","presentation":"IM/IV — frasco-ampola","uses":[
+{"ind":"Gonorreia não complicada / cervicite gonocócica","reg":"500 mg IM, dose única, dentro do esquema do PCDT vigente.","practice":"Avaliar coinfecção por clamídia e tratamento associado conforme diagnóstico/protocolo."},
+{"ind":"DIP ambulatorial","reg":"500 mg IM, dose única + doxiciclina 100 mg VO 12/12 h + metronidazol 500 mg VO 12/12 h por 14 dias.","practice":"Reavaliar resposta; gestação, abscesso, gravidade ou intolerância oral podem indicar internação."}],
+"attention":"Alergia grave a cefalosporinas exige estratégia alternativa. Não usar ceftriaxona isoladamente para DIP.","ref":"Ministério da Saúde — PCDT IST","url":"https://www.gov.br/saude/pt-br/assuntos/pcdt/a/atencao-integral-as-pessoas-com-infeccoes-sexualmente-transmissiveis/view"},
+"doxiciclina":{"title":"Doxiciclina","presentation":"VO — 100 mg","uses":[
+{"ind":"Clamídia/cervicite em cenário apropriado","reg":"100 mg VO 12/12 h por 7 dias.","practice":"Escolha depende de gestação, adesão, agente e protocolo."},
+{"ind":"DIP ambulatorial","reg":"100 mg VO 12/12 h por 14 dias, associada a ceftriaxona + metronidazol.","practice":"Faz parte de esquema combinado; reavaliar resposta clínica."}],
+"attention":"Evitar na gestação. Orientar ingestão com água, não deitar imediatamente e lembrar fotossensibilidade.","ref":"Ministério da Saúde — PCDT IST","url":"https://www.gov.br/saude/pt-br/assuntos/pcdt/a/atencao-integral-as-pessoas-com-infeccoes-sexualmente-transmissiveis/view"},
+"azitro":{"title":"Azitromicina","presentation":"VO — 500 mg","uses":[
+{"ind":"Infecção por clamídia — esquema do PCDT brasileiro","reg":"1 g VO, dose única (2 comprimidos de 500 mg).","practice":"Esquema simples quando adesão é preocupação; aplicar conforme cenário e protocolo vigente."},
+{"ind":"Gonorreia não complicada — componente do esquema do PCDT","reg":"1 g VO, dose única, associada à ceftriaxona 500 mg IM.","practice":"Orientar manejo das parcerias e prevenção de reinfecção."}],
+"attention":"Revisar risco de QT prolongado/interações em pacientes suscetíveis.","ref":"Ministério da Saúde — PCDT IST","url":"https://www.gov.br/saude/pt-br/assuntos/pcdt/a/atencao-integral-as-pessoas-com-infeccoes-sexualmente-transmissiveis/view"}
+
+,
+"cicloprimogyna":{"title":"Cicloprimogyna®","presentation":"Cartela com 21 comprimidos: 11 brancos (valerato de estradiol 2 mg) + 10 pardo-avermelhados (valerato de estradiol 2 mg + levonorgestrel 0,25 mg)","uses":[
+{"ind":"TH sequencial no climatério","reg":"1 comprimido VO ao dia, seguindo a sequência da cartela por 21 dias; fazer pausa de 7 dias e iniciar nova cartela.","practice":"Se a paciente ainda menstrua, a bula orienta início no 5º dia do ciclo. Pode ocorrer sangramento por privação no intervalo."},
+{"ind":"Como prescrever","reg":"Tomar 1 comprimido por via oral ao dia, seguindo a ordem da cartela, por 21 dias. Fazer intervalo de 7 dias e reiniciar nova cartela.","practice":"A própria cartela organiza 11 dias de estradiol isolado seguidos de 10 dias de estradiol + levonorgestrel."}],
+"attention":"Não é contraceptivo. Investigar sangramento não explicado e avaliar contraindicações à TH antes da prescrição.","ref":"Bayer — bula profissional de Cicloprimogyna®","url":"https://www.bulario.bayer.com.br/medicamentos-de-prescricao/cicloprimogyna"},
+"utrogestan":{"title":"Utrogestan® — progesterona micronizada","presentation":"Cápsulas moles de 100 mg e 200 mg; via oral ou vaginal. Embalagens variam conforme concentração.","uses":[
+{"ind":"Proteção endometrial na TH — esquema contínuo","reg":"100 mg VO à noite, antes de dormir, por 25–30 dias/mês.","practice":"Útil com estrogênio sistêmico em mulher com útero quando se deseja esquema predominantemente contínuo."},
+{"ind":"Proteção endometrial na TH — esquema sequencial","reg":"200 mg VO à noite por 12–14 dias/mês.","practice":"Pode ocorrer sangramento por privação após o período de progesterona."},
+{"ind":"Insuficiência lútea / irregularidade menstrual / pré-menopausa","reg":"200–300 mg/dia por 10 dias do ciclo, habitualmente do 16º ao 25º dia.","practice":"A dose de 200 mg pode ser administrada à noite; esquemas de 300 mg podem ser divididos."},
+{"ind":"Como prescrever — exemplo TH contínua","reg":"Progesterona micronizada 100 mg: tomar 1 cápsula VO à noite, diariamente (25–30 dias/mês), associada ao estrogênio.","practice":"A via oral pode causar sonolência; a bula admite via vaginal em situações específicas."}],
+"attention":"Não confundir proteção endometrial na TH com contracepção. Rever sangramento anormal, contraindicações e indicação individual.","ref":"Bula profissional Utrogestan®; recomendações de TH devem ser individualizadas","url":"https://bula.com.br/original/utrogestan"},
+"provera":{"title":"Provera® — acetato de medroxiprogesterona","presentation":"Comprimidos de 10 mg; embalagem de referência com 14 comprimidos","uses":[
+{"ind":"Sangramento uterino disfuncional/anovulatório, após excluir causa orgânica relevante","reg":"Esquema deve ser escolhido conforme padrão clínico; a apresentação de 10 mg permite cursos cíclicos usuais.","practice":"Antes de tratar empiricamente, excluir gestação e enquadrar a etiologia do SUA; em ≥45 anos ou com fatores de risco, considerar avaliação endometrial."},
+{"ind":"Proteção endometrial associada a estrogênio","reg":"A medroxiprogesterona pode ser usada em esquema contínuo ou sequencial; selecionar dose/duração conforme regime de TH e diretriz adotada.","practice":"É alternativa de menor custo à progesterona micronizada em muitos cenários."}],
+"attention":"Esta ficha ainda exige consolidação de esquema posológico por indicação em diretriz clínica atual; não usar apenas a apresentação comercial para definir tratamento.","ref":"Pfizer — bula profissional Provera®; FEBRASGO — SUA/TH","url":"https://www.pfizer.com.br/bulas/provera"},
+"ovestrion":{"title":"Ovestrion® — estriol vaginal","presentation":"Creme vaginal 1 mg/g; bisnaga com aplicador. Um aplicador cheio até a marca fornece 0,5 g de creme = 0,5 mg de estriol.","uses":[
+{"ind":"Síndrome geniturinária da menopausa / atrofia geniturinária","reg":"1 aplicação vaginal ao dia nas primeiras semanas; reduzir gradualmente conforme resposta até manutenção, por exemplo 1 aplicação 2 vezes por semana.","practice":"Administrar preferencialmente à noite. Para sintomas exclusivamente geniturinários, terapia local costuma ser mais lógica que TH sistêmica."},
+{"ind":"Como prescrever — manutenção típica","reg":"Aplicar 1 medida do aplicador (0,5 g) por via vaginal à noite, 2 vezes por semana, após fase inicial diária e conforme resposta.","practice":"A duração é individualizada; reavaliar sangramento inesperado e resposta clínica."}],
+"attention":"A dose máxima diária não deve ser mantida por várias semanas. Sangramento pós-menopausa não explicado requer investigação.","ref":"Bula profissional Ovestrion®","url":"https://bula.com.br/original/ovestrion-creme"},
+"livial":{"title":"Livial® — tibolona","presentation":"Comprimidos de 2,5 mg; embalagens de referência com 28 ou 84 comprimidos","uses":[
+{"ind":"Sintomas climatéricos em pós-menopausa estabelecida","reg":"2,5 mg VO uma vez ao dia, uso contínuo, sem pausa entre cartelas.","practice":"Pode ser opção quando há sintomas vasomotores e componente sexual/libido em paciente adequadamente selecionada."},
+{"ind":"Como prescrever","reg":"Tomar 1 comprimido de 2,5 mg VO uma vez ao dia, preferencialmente no mesmo horário, continuamente.","practice":"Não associar rotineiramente progestagênio adicional apenas por presença de útero; avaliar indicação e riscos individualmente."}],
+"attention":"Não é contraceptivo e não é estratégia para perimenopausa com ciclos ativos. Sangramento inesperado/persistente requer avaliação.","ref":"Bula Livial® / Organon; diretrizes de TH","url":"https://bula.com.br/original/livial"}
+
+};
+
+function clinicalGuide(m){
+ const g=CLINICAL_GUIDE[m.id]; if(!g)return "";
+ return `<div style="margin-top:12px;border-top:1px solid #d8e2ea;padding-top:10px">
+ <h4 style="margin:0 0 8px;color:#0b5f9e">Uso prático em Ginecologia / Obstetrícia</h4>
+ ${g.uses.map(u=>`<div style="margin-bottom:10px"><b>${u.ind}</b><br><b>Esquema usual:</b> ${u.reg}<br><span class="small"><b>Na prática:</b> ${u.practice}</span></div>`).join("")}
+ <div class="alert"><b>Atenção:</b> ${g.attention}</div>
+ <div class="small"><b>Apresentação para prescrição:</b> ${g.presentation}</div>
+ <div class="small" style="margin-top:6px"><b>Genérico/similar:</b> verificar produto registrado/intercambiável vigente na Anvisa; não presumir equivalência apenas pela classe.</div>
+ <div class="small" style="margin-top:6px"><b>📚 Referência clínica:</b> <a href="${g.url}" target="_blank">${g.ref}</a></div>
+ </div>`;
+}
+
+const PATHS = [
+{name:"Sangramento uterino anormal (SUA)",keywords:["sua","sangramento","tranexamico","mefenamico","medroxiprogesterona","levonorgestrel"],note:"Investigar gestação, estabilidade, anemia, etiologia PALM-COEIN e necessidade de avaliação endometrial antes de tratar apenas o sintoma."},
+{name:"Vaginose bacteriana",keywords:["vaginose","metronidazol","clindamicina"],note:"Confirmar síndrome clínica e diferenciais; recorrência pode demandar estratégia própria."},
+{name:"Candidíase vulvovaginal",keywords:["candidiase","fluconazol","miconazol","clotrimazol","nistatina"],note:"Distinguir não complicada, recorrente, gestação e suspeita de Candida não-albicans."},
+{name:"Tricomoníase",keywords:["tricomon","metronidazol"],note:"Tratar conforme PCDT e considerar manejo de parceiros e rastreio de IST."},
+{name:"DIP",keywords:["dip","ceftriaxona","doxiciclina","metronidazol"],note:"Avaliar gravidade, gestação, abscesso, tolerância oral e critérios de internação."},
+{name:"Cistite / ITU baixa",keywords:["cistite","itu","nitrofurantoina","fosfomicina","cefalexina","ampicilina","amoxicilina"],note:"Febre, dor lombar, gestação, recorrência ou fatores complicadores mudam investigação e tratamento."},
+{name:"Climatério / sintomas vasomotores",keywords:["fogachos","estradiol","tibolona","progesterona","venlafaxina"],note:"Individualizar por idade, tempo desde menopausa, útero, padrão de sangramento e risco cardiovascular/trombótico."},
+{name:"Síndrome geniturinária da menopausa",keywords:["estriol","promestrieno","vaginal","sgum"],note:"Sintomas exclusivamente geniturinários geralmente favorecem tratamento local."},
+{name:"Endometriose / dor pélvica",keywords:["endometriose","dienogeste","noretisterona","levonorgestrel","mefenamico"],note:"Desejo reprodutivo, padrão de dor, suspeita de doença profunda e contraindicações hormonais orientam a estratégia."},
+{name:"SOMP / PMOS",keywords:["metformina","espironolactona","drospirenona","letrozol","clomifeno"],note:"Definir objetivo predominante: ciclo/proteção endometrial, hiperandrogenismo, metabolismo ou fertilidade."}
+];
+
+const $=id=>document.getElementById(id);
+const norm=s=>(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+function hay(m){return norm([m.brand,m.generic,m.cls,m.module,...(m.indications||[]),...(m.keywords||[]),...(m.alternatives||[])].join(" "))}
+function searchMeds(q,mod){
+let a=MEDS;if(mod)a=a.filter(x=>x.module===mod);q=norm(q.trim());if(!q)return a;
+function score(m){
+ const primary=norm([m.brand,m.generic].join(" "));
+ const secondary=norm([m.cls,m.module,...(m.indications||[]),...(m.keywords||[])].join(" "));
+ const alt=norm((m.alternatives||[]).join(" "));
+ if(primary===q)return 100;
+ if(primary.startsWith(q)||norm(m.generic).startsWith(q)||norm(m.brand).startsWith(q))return 90;
+ if(primary.includes(q))return 80;
+ if(secondary.includes(q))return 50;
+ if(alt.includes(q))return 20;
+ return 0;
+}
+return a.map(m=>({m,s:score(m)})).filter(x=>x.s>0).sort((x,y)=>y.s-x.s||x.m.brand.localeCompare(y.m.brand)).map(x=>x.m);
+}
+function medCard(m){
+return `<div class="med"><h3>${m.brand}</h3><b>${m.generic}</b><div><span class="tag">${m.cls}</span><span class="tag">${m.module}</span></div>
+<p><b>Indicações:</b> ${(m.indications||[]).join("; ")}</p><p><b>Posologia/uso usual:</b> ${m.dose}</p>
+<p><b>Alertas:</b> ${m.cautions}</p><p><b>Alternativas:</b> ${(m.alternatives||[]).join("; ")}</p><p class="small"><b>SUS:</b> ${m.sus}</p>${clinicalGuide(m)}</div>`;
+}
+function renderSearch(){
+const arr=searchMeds($("search").value,$("moduleFilter").value);
+$("count").textContent=`${arr.length} medicamento(s) encontrado(s)`;
+$("results").innerHTML=arr.map(medCard).join("");
+}
+$("search").addEventListener("input",renderSearch); $("moduleFilter").addEventListener("change",renderSearch); $("btnSearch").onclick=renderSearch;
+$("btnClear").onclick=()=>{$("search").value="";$("moduleFilter").value="";$("results").innerHTML="";$("count").textContent="";$("search").focus();};
+
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));b.classList.add("active");$(b.dataset.tab).classList.add("active");});
+
+$("pathSelect").innerHTML=PATHS.map((p,i)=>`<option value="${i}">${p.name}</option>`).join("");
+function renderPath(){const p=PATHS[+$("pathSelect").value];$("pathNote").innerHTML=`<div class="alert"><b>${p.name}</b><br>${p.note}</div>`;const arr=MEDS.filter(m=>p.keywords.some(k=>hay(m).includes(norm(k))));$("pathResults").innerHTML=arr.map(medCard).join("");}
+$("pathSelect").onchange=renderPath; renderPath();
+
+const fields={
+sua:`<div class="grid3">
+<div><label>Gestação possível?</label><select id="preg"><option value="nao">Não</option><option value="sim">Sim/Não excluída</option></select></div>
+<div><label>Instabilidade / sangramento muito intenso?</label><select id="unstable"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Padrão</label><select id="pattern"><option value="cronico">Crônico/recorrente</option><option value="agudo">Agudo</option><option value="posmeno">Pós-menopausa</option></select></div>
+<div><label>Deseja contracepção?</label><select id="wantContraception"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Contraindicação a estrogênio?</label><select id="noEst"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>US/causa estrutural relevante?</label><select id="struct"><option value="nao">Não / não informado</option><option value="sim">Sim</option></select></div>
+</div>`,
+th:`<div class="grid3">
+<div><label>Status menstrual</label><select id="meno"><option value="peri">Perimenopausa</option><option value="pos">Pós-menopausa</option></select></div>
+<div><label>Útero presente?</label><select id="uterus"><option value="sim">Sim</option><option value="nao">Não</option></select></div>
+<div><label>Sintoma predominante</label><select id="symptom"><option value="vms">Fogachos/sintomas vasomotores</option><option value="gsm">GSM isolada</option><option value="both">Ambos</option></select></div>
+<div><label>Contraindicação/alto risco para TH sistêmica?</label><select id="noTH"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Precisa contracepção?</label><select id="needContra"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Sangramento não explicado?</label><select id="bleed"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+</div>`,
+contracepcao:`<div class="grid3">
+<div><label>Deseja LARC?</label><select id="larc"><option value="indif">Indiferente</option><option value="sim">Sim</option><option value="nao">Não</option></select></div>
+<div><label>SUA/dismenorreia importante?</label><select id="heavy"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Contraindicação a estrogênio?</label><select id="noEst"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Acne/hiperandrogenismo?</label><select id="acne"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Deseja método sem hormônio?</label><select id="noHorm"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Relação desprotegida recente?</label><select id="emergency"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+</div>`,
+vulvo:`<div class="grid3">
+<div><label>Fenótipo principal</label><select id="syndrome"><option value="candida">Prurido + corrimento grumoso / candidíase</option><option value="bv">Odor + corrimento homogêneo / vaginose</option><option value="trich">Corrimento + suspeita de tricomoníase</option><option value="cervicite">Cervicite/risco de IST</option><option value="dip">Dor + critérios clínicos de DIP</option></select></div>
+<div><label>Gestação?</label><select id="preg"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Recorrente?</label><select id="recur"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Febre/dor intensa/abscesso?</label><select id="severe"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Alergia relevante a betalactâmico?</label><select id="betaAllergy"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+</div>`,
+endo:`<div class="grid3">
+<div><label>Desejo gestacional atual?</label><select id="fertility"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Dismenorreia/dor cíclica?</label><select id="cyclic"><option value="sim">Sim</option><option value="nao">Não</option></select></div>
+<div><label>Suspeita de doença profunda/endometrioma?</label><select id="deep"><option value="nao">Não / não informado</option><option value="sim">Sim</option></select></div>
+<div><label>Contraindicação hormonal?</label><select id="noHorm"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div><label>Falha de tratamento prévio?</label><select id="failed"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+</div>`
+};
+function renderClinicalFields(){$("clinicalFields").innerHTML=fields[$("clinicalModule").value];$("clinicalOutput").innerHTML="";}
+$("clinicalModule").onchange=renderClinicalFields; renderClinicalFields();
+const val=id=>$(id)?$(id).value:"";
+
+function clinicalAnalysis(){
+let mod=$("clinicalModule").value, age=Number($("age").value||0), h="", options=[], tests=[], avoid=[], red=[];
+if(mod==="sua"){
+ if(val("unstable")==="sim") red.push("Sangramento com instabilidade ou repercussão importante: priorizar avaliação de urgência, sinais vitais, hemograma, acesso venoso e controle do sangramento.");
+ if(val("preg")==="sim") red.push("Gestação não excluída: β-hCG antes de aplicar algoritmo de SUA não gestacional.");
+ if(val("pattern")==="posmeno") red.push("Sangramento pós-menopausa requer investigação endometrial/estrutural; não tratar empiricamente sem avaliação.");
+ tests.push("Hemograma conforme intensidade/duração; β-hCG se houver possibilidade de gestação; investigação dirigida pela história e exame.");
+ tests.push("US transvaginal quando indicada; classificar etiologia pelo PALM-COEIN.");
+ if(age>=45 || val("pattern")==="posmeno") tests.push("Considerar avaliação endometrial conforme idade, padrão de sangramento e fatores de risco.");
+ if(val("wantContraception")==="sim") options.push("SIU-LNG 52 mg: particularmente útil quando se deseja contracepção + redução do fluxo, se cavidade/etiologia permitirem.");
+ if(val("noEst")==="nao") options.push("Contraceptivo hormonal combinado: opção para controle de ciclo/SUA quando elegível.");
+ options.push("Ácido tranexâmico durante os dias de sangramento: opção não hormonal em cenários apropriados.");
+ options.push("Progestagênio oral/cíclico ou contínuo: alternativa quando estrogênio não é desejado/adequado.");
+ options.push("AINE pode ajudar especialmente quando há dismenorreia associada.");
+ if(val("struct")==="sim") avoid.push("Evitar atribuir o quadro apenas a disfunção ovulatória: correlacionar achado estrutural, sintomas e necessidade de tratamento específico.");
+}
+if(mod==="th"){
+ if(val("bleed")==="sim") red.push("Sangramento não explicado: investigar antes de iniciar/ajustar TH sistêmica.");
+ if(val("symptom")==="gsm") options.push("Terapia vaginal local (ex.: estriol/estradiol/promestrieno, conforme disponibilidade) tende a ser mais lógica quando GSM é isolada.");
+ else if(val("noTH")==="nao"){
+   options.push("Estradiol transdérmico é opção sistêmica atraente em muitas pacientes, com dose individualizada.");
+   if(val("uterus")==="sim") options.push("Com útero presente, associar proteção endometrial adequada (ex.: progesterona micronizada ou outra estratégia progestagênica).");
+   if(val("meno")==="peri") options.push("Na perimenopausa, esquema sequencial pode ser mais adequado quando há ciclos/aceitação de sangramento programado.");
+   else options.push("Na pós-menopausa estabelecida, esquema contínuo combinado é frequentemente considerado quando o útero está presente.");
+ } else options.push("Se TH sistêmica não for apropriada, considerar opções não hormonais para fogachos, como SNRI/ISRS selecionados, individualizando comorbidades e interações.");
+ if(val("needContra")==="sim") avoid.push("TH não é contraceptiva. Considerar método contraceptivo próprio; SIU-LNG pode ser útil em cenários selecionados e permitir estradiol separado.");
+ tests.push("Revisar história mamária, trombótica/cardiovascular, sangramento, medicamentos e fatores metabólicos antes da decisão.");
+}
+if(mod==="contracepcao"){
+ if(val("emergency")==="sim") options.push("Contracepção de emergência: levonorgestrel 1,5 mg o mais cedo possível; DIU de cobre é opção muito eficaz até 5 dias quando elegível.");
+ if(val("noHorm")==="sim") options.push("DIU de cobre TCu 380A: LARC não hormonal; considerar impacto possível sobre fluxo/dismenorreia.");
+ else if(val("larc")==="sim" || val("larc")==="indif"){
+   if(val("heavy")==="sim") options.push("SIU-LNG 52 mg: forte candidato quando se deseja LARC + redução de SUA/dismenorreia.");
+   options.push("Implante de etonogestrel: LARC altamente eficaz; discutir padrão de sangramento irregular.");
+ }
+ if(val("noEst")==="sim") options.push("Preferir métodos sem estrogênio: SIU-LNG, implante, DIU de cobre, POP ou injetável conforme elegibilidade.");
+ else options.push("Métodos combinados permanecem opção quando elegíveis; escolha de formulação deve considerar perfil clínico e preferência.");
+ if(val("acne")==="sim" && val("noEst")==="nao") options.push("ACO combinado com perfil antiandrogênico pode ser útil quando acne/hiperandrogenismo coexistem, após avaliação de risco.");
+ tests.push("Excluir gestação quando pertinente e aplicar critérios de elegibilidade clínica, sobretudo para estrogênio.");
+}
+if(mod==="vulvo"){
+ let s=val("syndrome");
+ if(val("severe")==="sim") red.push("Febre, dor importante, massa/abscesso ou doença sistêmica exigem avaliação mais ampla e podem indicar internação/terapia parenteral.");
+ if(s==="candida"){
+   if(val("preg")==="sim"){options.push("Gestação: preferir azólico tópico vaginal; evitar fluconazol oral de rotina.");}
+   else options.push("Candidíase não complicada: azólico tópico ou fluconazol oral podem ser opções conforme cenário.");
+   if(val("recur")==="sim"){tests.push("Recorrência: confirmar diagnóstico, considerar cultura/especiação e fatores predisponentes."); avoid.push("Evitar repetir empiricamente múltiplos ciclos sem confirmar etiologia.");}
+ } else if(s==="bv"){options.push("Vaginose bacteriana: metronidazol oral ou vaginal, ou clindamicina, conforme protocolo e contexto.");}
+ else if(s==="trich"){options.push("Tricomoníase: metronidazol conforme PCDT; tratar parceiros e orientar abstinência até conclusão do tratamento."); tests.push("Considerar testagem para outras IST.");}
+ else if(s==="cervicite"){tests.push("Investigar clamídia/gonococo e outras IST conforme risco e disponibilidade de testes."); options.push("Tratamento empírico depende do risco, seguimento e protocolo local; usar PCDT IST como referência.");}
+ else if(s==="dip"){options.push("DIP ambulatorial, quando elegível: regime combinado com cobertura para gonococo/clamídia/anaeróbios conforme PCDT/protocolo."); tests.push("β-hCG, avaliação de gravidade e investigação de IST; US quando abscesso ou diferencial estrutural for preocupação.");}
+}
+if(mod==="endo"){
+ tests.push("História dirigida (dismenorreia, dispareunia profunda, dor evacuatória/urinária cíclica), exame ginecológico e imagem conforme suspeita.");
+ if(val("deep")==="sim") tests.push("Suspeita de doença profunda/endometrioma: considerar US transvaginal especializada e/ou RM conforme disponibilidade e planejamento.");
+ if(val("fertility")==="sim"){options.push("Desejo gestacional atual: evitar tratamento hormonal supressivo como estratégia para melhorar fertilidade; orientar investigação reprodutiva e manejo individualizado.");}
+ else if(val("noHorm")==="nao"){
+   options.push("ACO contínuo ou progestagênio (ex.: dienogeste) são opções clínicas frequentes para controle de dor.");
+   options.push("SIU-LNG 52 mg pode ser útil quando há necessidade contraceptiva e componente uterino/dismenorreia.");
+ } else options.push("AINE/analgesia e abordagem multidisciplinar da dor podem ser considerados quando terapia hormonal não é apropriada.");
+ if(val("failed")==="sim") options.push("Falha terapêutica, intolerância ou sintomas incapacitantes justificam reavaliação diagnóstica e discussão de estratégia cirúrgica/centro especializado conforme achados.");
+}
+h=`<div class="card output"><h2>Resultado do Assistente Clínico</h2>`;
+if(red.length)h+=`<div class="alert red"><b>Alertas / prioridade</b><ul>${red.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+h+=`<h3>Interpretação do cenário</h3><p>As informações fornecidas orientam um conjunto de possibilidades clínicas. A hierarquia abaixo é uma sugestão de raciocínio, não uma prescrição automática.</p>`;
+if(tests.length)h+=`<h3>Investigação / pontos a confirmar</h3><ul>${tests.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+if(options.length)h+=`<h3>Opções a considerar</h3><ol>${options.map(x=>`<li>${x}</li>`).join("")}</ol>`;
+if(avoid.length)h+=`<h3>O que evitar / revisar</h3><ul>${avoid.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+h+=`<div class="alert green"><b>Neste caso:</b> use as opções acima como apoio para decidir conforme exame, preferências da paciente, contraindicações, interações, disponibilidade e protocolo vigente.</div></div>`;
+$("clinicalOutput").innerHTML=h;
+}
+$("runClinical").onclick=clinicalAnalysis;
+$("clearClinical").onclick=()=>{$("age").value="";renderClinicalFields();$("clinicalOutput").innerHTML="";};
+</script>
+<script>
+let deferredPWAInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPWAInstallPrompt = e;
+  const bar = document.getElementById('pwaInstallBar');
+  if (bar) bar.style.display = 'block';
+});
+document.addEventListener('click', async (e) => {
+  if (e.target && e.target.id === 'pwaInstallBtn' && deferredPWAInstallPrompt) {
+    deferredPWAInstallPrompt.prompt();
+    await deferredPWAInstallPrompt.userChoice;
+    deferredPWAInstallPrompt = null;
+    const bar = document.getElementById('pwaInstallBar');
+    if (bar) bar.style.display = 'none';
+  }
+});
+window.addEventListener('appinstalled', () => {
+  const bar = document.getElementById('pwaInstallBar');
+  if (bar) bar.style.display = 'none';
+});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(console.error);
+  });
+}
+</script>
+
+</body></html>
