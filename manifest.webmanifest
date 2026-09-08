@@ -1,7 +1,7 @@
 {
-  "name": "Medicamentos em Ginecologia — Saúde Fetal",
+  "name": "Gineco Med — Saúde Fetal",
   "short_name": "Gineco Med",
-  "description": "Consulta clínica e assistente terapêutico para ginecologistas.",
+  "description": "Assistente de medicamentos e terapêutica em Ginecologia — Saúde Fetal.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
